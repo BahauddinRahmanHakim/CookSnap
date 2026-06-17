@@ -335,7 +335,7 @@ GROQ_API_KEY=gsk_xxxxxxxxxxxxxx
 ### 3. Jalankan Aplikasi
 
 ```bash
-streamlit run cooksnap_ver2.py
+streamlit run app.py
 ```
 
 Aplikasi akan terbuka di browser pada `http://localhost:8501`.
