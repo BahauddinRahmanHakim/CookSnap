@@ -1,5 +1,8 @@
 # 🍳 CookSnap — Sistem Rekomendasi Resep Berbasis Bahan Makanan
 
+## Demo
+https://cooksnap.streamlit.app/
+
 ## Deskripsi Singkat
 
 **CookSnap** adalah aplikasi web berbasis Streamlit yang merekomendasikan resep masakan Indonesia berdasarkan bahan makanan yang dimiliki pengguna. Sistem ini menggabungkan **dual information retrieval** (BM25 + TF-IDF), **asisten AI agentic** (Groq LLaMA 3.3), dan **estimasi nutrisi otomatis** untuk memberikan pengalaman memasak yang cerdas dan efisien.
