@@ -355,7 +355,7 @@ Aplikasi akan terbuka di browser pada `http://localhost:8501`.
 
 ## Sumber Data
 
-- **Resep**: Scraping dari [Cookpad Indonesia](https://cookpad.com/id)
+- **Resep**: https://www.kaggle.com/datasets/canggih/indonesian-food-recipes
 - **Nutrisi**: Database nutrisi bahan makanan Indonesia
 - **Gambar**: Diambil real-time dari Cookpad via OG meta tag
 
