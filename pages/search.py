@@ -14,7 +14,7 @@ def render(recipes_df, ingredients_df, bm25_model, tfidf_model, recipe_ids_list,
     st.markdown('<div class="section-title">🔍 Cari Resep dari Bahan</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-sub">Masukkan bahan yang kamu punya — CookSnap merekomendasikan resep terbaik dengan BM25 + TF-IDF dual retrieval.</div>', unsafe_allow_html=True)
 
-    with st.container():
+    with st.form("search_form"):
         col_filter1, col_filter2, col_filter3, col_filter4 = st.columns([2, 1, 1, 1])
 
         with col_filter1:
@@ -26,7 +26,7 @@ def render(recipes_df, ingredients_df, bm25_model, tfidf_model, recipe_ids_list,
                     if st.session_state.get("last_ingredients")
                     else ""
                 )
-            ingredient_input = st.text_area(
+            st.text_area(
                 "Bahan yang dimiliki",
                 key="ingredient_input",
                 placeholder="Masukkan satu bahan per baris:\nayam\nbawang putih\ntomat\ntelur",
@@ -42,20 +42,22 @@ def render(recipes_df, ingredients_df, bm25_model, tfidf_model, recipe_ids_list,
             if st.session_state.get("search_category", "Semua") in category_options:
                 default_cat_idx = category_options.index(st.session_state["search_category"])
             category = st.selectbox("Kategori", category_options, index=default_cat_idx)
-            old_category = st.session_state.get("search_category", "Semua")
-            if category != old_category:
-                st.session_state.search_results = []
-                st.session_state.search_page = 1
-            st.session_state.search_category = category
 
         with col_filter4:
             max_time = st.slider("Maks. Waktu (menit)", 0, 180, 0, step=15)
             top_k    = st.slider("Tampilkan", 5, 20, 10)
             main_boost = st.slider("Bobot Bahan Utama (boost)", 0.0, 0.5, 0.15, step=0.05)
 
-    col_btn1, _ = st.columns([1, 5])
-    with col_btn1:
-        do_search = st.button("🔍 Cari Sekarang", use_container_width=True)
+        col_btn1, _ = st.columns([1, 5])
+        with col_btn1:
+            do_search = st.form_submit_button("🔍 Cari Sekarang", use_container_width=True)
+
+    # Update kategori di session_state setelah form selesai diproses
+    old_category = st.session_state.get("search_category", "Semua")
+    if category != old_category:
+        st.session_state.search_results = []
+        st.session_state.search_page = 1
+    st.session_state.search_category = category
 
     if do_search:
         # Read the current text area from session_state to avoid stale values
