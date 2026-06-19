@@ -190,6 +190,11 @@ def render_chef_chat(recipe_row, grouped_ings, chef_agent, rid):
 def render(recipes_df, steps_df, grouped_ings, nutrition_df, chef_agent):
     rid = st.session_state.selected_recipe
 
+    if st.session_state.get("pending_toast"):
+        msg, icon = st.session_state.pending_toast
+        st.toast(msg, icon=icon)
+        st.session_state.pending_toast = None
+    
     if not rid:
         st.info("Pilih resep dari halaman Cari Resep terlebih dahulu.")
         if st.button("← Kembali ke Pencarian"):
@@ -414,6 +419,10 @@ def render(recipes_df, steps_df, grouped_ings, nutrition_df, chef_agent):
 
     if st.button(".", key="chef_fab", help=button_help):
         st.session_state.show_chef_chat = not st.session_state.show_chef_chat
+        if st.session_state.show_chef_chat:
+            st.session_state.pending_toast = (
+                "Asisten Chat berhasil dibuka di bawah Detail Resep 👨‍🍳", "✅"
+            )
         st.rerun()
 
   
