@@ -355,9 +355,15 @@ def render(recipes_df, steps_df, grouped_ings, nutrition_df, chef_agent):
     # ── Embedded AI Chef Chat di bawah detail resep ──
     render_chef_chat(recipe_row, grouped_ings, chef_agent, rid)
 
-    button_label = "✕" if st.session_state.show_chef_chat else "👨‍🍳"
-    button_help = "Tutup Asisten Chef" if st.session_state.show_chef_chat else "Klik untuk Membuka Asisten Chef di bawah Detail Resep"
+    is_open     = st.session_state.show_chef_chat
+    button_help = "Tutup Asisten Chef" if is_open else "Buka Asisten Chef"
 
+    # SVG inline
+    close_svg = """<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>"""
+    chat_svg  = """<svg viewBox="0 0 24 24" width="26" height="26" fill="#000"><path d="M12 2C6.48 2 2 6.03 2 11c0 2.4 1.05 4.58 2.77 6.2-.18 1.4-.66 2.6-1.46 3.6-.16.2-.02.5.24.48 1.83-.15 3.4-.78 4.62-1.6A11.6 11.6 0 0 0 12 20c5.52 0 10-4.03 10-9s-4.48-9-10-9zm-3.5 9.75a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm3.5 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5zm3.5 0a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5z"/></svg>"""
+    fab_svg = close_svg if is_open else chat_svg
+
+    # CSS Styling FAB
     st.markdown("""
     <style>
     .st-key-chef_fab .stButton button {
@@ -368,26 +374,45 @@ def render(recipes_df, steps_df, grouped_ings, nutrition_df, chef_agent):
         width: 60px !important;
         height: 60px !important;
         border-radius: 50% !important;
-        font-size: 1.6rem !important;
-        line-height: 1 !important;
         padding: 0 !important;
+        font-size: 0 !important;
+        color: transparent !important;
         background: linear-gradient(135deg, var(--accent-warm), var(--accent-orange)) !important;
-        color: #000 !important;
         border: none !important;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.25) !important;
+        box-shadow: 0 8px 24px rgba(232,168,56,0.45) !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         z-index: 9999 !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+        cursor: pointer !important;
     }
     .st-key-chef_fab .stButton button:hover {
-        transform: translateY(-2px) !important;
-        opacity: 0.95 !important;
+        transform: translateY(-3px) scale(1.06) !important;
+        box-shadow: 0 14px 36px rgba(232,168,56,0.6) !important;
+    }
+    #chef-fab-icon {
+        position: fixed;
+        bottom: 1.8rem;
+        right: 1.8rem;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        z-index: 10000;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    if st.button(button_label, key="chef_fab", help=button_help):
+    # Icon Overlay 
+    st.markdown(
+        f'<div id="chef-fab-icon">{fab_svg}</div>',
+        unsafe_allow_html=True,
+    )
+
+    if st.button(".", key="chef_fab", help=button_help):
         st.session_state.show_chef_chat = not st.session_state.show_chef_chat
         st.rerun()
 
