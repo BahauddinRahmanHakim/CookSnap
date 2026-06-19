@@ -10,15 +10,13 @@ import streamlit as st
 
 
 def clean_chat_content(content: str) -> str:
+    """Strip semua tag HTML dari output LLM, kembalikan plain text."""
     text = html.unescape(content or '')
     text = re.sub(r'(?i)<br\s*/?>', '\n', text)
     text = re.sub(r'(?i)<p[^>]*>', '\n', text)
     text = re.sub(r'<[^>]+>', '', text)
     text = html.unescape(text)
-    text = text.strip()
-    # Escape any remaining HTML-sensitive characters before rendering inside a safe container.
-    text = html.escape(text, quote=False)
-    return text.replace('\n', '<br>')
+    return text.strip()
 
 
 def render(chef_agent):
@@ -45,34 +43,27 @@ def render(chef_agent):
                 if st.button(sug, key=f"sug_{i}"):
                     st.session_state.chat_history.append({"role": "user", "content": sug})
 
-    # Pastikan semua jawaban assistant yang tersimpan sudah dibersihkan
-    for msg in st.session_state.chat_history:
-        if msg.get("role") == "assistant":
-            msg["content"] = clean_chat_content(msg.get("content", ""))
-
     # ── Render Chat History ──
     chat_container = st.container()
     with chat_container:
         for idx, msg in enumerate(st.session_state.chat_history):
             if msg["role"] == "user":
-                user_content = html.escape(msg['content'] or '', quote=False).replace('\n', '<br>')
                 st.markdown(f"""
                 <div style='display:flex; justify-content:flex-end; margin-bottom:12px;'>
                     <div>
                         <div class='chat-name' style='text-align:right; color:var(--text-muted);'>KAMU</div>
-                        <div class='chat-bubble-user'>{user_content}</div>
+                        <div class='chat-bubble-user'>{html.escape(msg['content'] or '')}</div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
             elif msg["role"] == "assistant":
-                # Tampilkan tool badges jika ada
                 tool_badges = ""
-                chat_tools = st.session_state.get("chat_tools", [])
-                if chat_tools and idx < len(chat_tools) and chat_tools[idx]:
+                tools_in_msg = msg.get("tools_used", [])
+                if tools_in_msg:
                     badges_html = ""
-                    for t in chat_tools[idx]:
+                    for t in tools_in_msg:
                         t_name = t["name"].replace("_", " ").title()
-                        t_arg  = html.escape(str(t.get("args", {}).get("nama_bahan", "")), quote=False)
+                        t_arg  = html.escape(str(t.get("args", {}).get("nama_bahan", "")))
                         badges_html += (
                             f"<span style='display:inline-flex;align-items:center;gap:4px;"
                             f"font-size:0.65rem;padding:3px 10px;border-radius:20px;"
@@ -87,14 +78,14 @@ def render(chef_agent):
                         f"<span style='font-size:0.6rem;color:var(--text-dim);'>TOOLS DIPANGGIL:</span><br>"
                         f"{badges_html}</div>"
                     )
-
-                safe_content = clean_chat_content(msg['content'])
+                
+                # Bubble Chat
+                safe_content = clean_chat_content(msg['content']).replace('\n', '<br>')
                 st.markdown(f"""
                 <div style='display:flex; justify-content:flex-start; margin-bottom:12px;'>
                     <div style='max-width:80%;'>
-                        <div class='chat-name' style='color:var(--accent-warm);'>👨‍🍳 CHEF ARI</div>
-                        {tool_badges}
-                        <div class='chat-bubble-ai' style='white-space:pre-wrap; word-break:break-word;'>{safe_content}</div>
+                        <div class='chat-name' style='color:var(--accent-warm);'> 👨‍🍳 CHEF ARI {tool_badges}</div>                        
+                        <div class='chat-bubble-ai'>{safe_content}</div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -110,10 +101,8 @@ def render(chef_agent):
         st.session_state.chat_history.append({
             "role": "assistant",
             "content": reply,
+            "tools_used": tools_used if tools_used else [],
         })
-        if "chat_tools" not in st.session_state:
-            st.session_state.chat_tools = []
-        st.session_state.chat_tools.append(tools_used if tools_used else [])
         st.rerun()
 
     # ── Input Form ──
