@@ -98,7 +98,7 @@ def call_groq(messages: List[Dict], system: str = "", max_tokens: int = 1000) ->
         return f"⚠️ {data['error']}"
     if "choices" in data and data["choices"]:
         content = data["choices"][0]["message"].get("content", "")
-        return re.sub(r'<[^>]+>', '', content)
+        return content
     err_msg = data.get("error", {})
     if isinstance(err_msg, dict):
         return f"⚠️ Error dari API: {err_msg.get('message', str(data))}"
@@ -376,14 +376,8 @@ class ChefAgent:
         tool_calls = message.get("tool_calls")
 
         if not tool_calls:
-            # LLM langsung menjawab tanpa tool
-            content = message.get("content", "")
-            content = html.unescape(content)
-            content = re.sub(r'(?i)<br\s*/?>', '\n', content)
-            content = re.sub(r'(?i)<p[^>]*>', '\n', content)
-            content = re.sub(r'<[^>]+>', '', content)
-            content = html.unescape(content).strip()
-            return content, []
+            # LLM langsung menjawab tanpa tool — kembalikan mentah, display layer yang bersihkan
+            return message.get("content", ""), []
 
         # Step 3: Eksekusi setiap tool yang dipanggil LLM
         follow_up_messages = list(chat_history)
@@ -421,11 +415,6 @@ class ChefAgent:
 
         if "choices" in final_data and final_data["choices"]:
             final_reply = final_data["choices"][0]["message"].get("content", "")
-            final_reply = html.unescape(final_reply)
-            final_reply = re.sub(r'(?i)<br\s*/?>', '\n', final_reply)
-            final_reply = re.sub(r'(?i)<p[^>]*>', '\n', final_reply)
-            final_reply = re.sub(r'<[^>]+>', '', final_reply)
-            final_reply = html.unescape(final_reply).strip()
         else:
             final_reply = "\n\n".join(t["result"] for t in tools_used)
 
