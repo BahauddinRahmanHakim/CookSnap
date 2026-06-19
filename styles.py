@@ -366,13 +366,13 @@ header { background: transparent !important; }
 .stSlider [data-baseweb="slider"] [data-baseweb="slider-fill"] { background: var(--accent-warm) !important; }
 
 /* BUTTONS */
-.stButton button {
+.stButton button, .stFormSubmitButton button {
     background: linear-gradient(135deg, var(--accent-warm), var(--accent-orange)) !important;
     color: #000 !important; font-weight: 600 !important; border: none !important;
     border-radius: var(--radius-sm) !important; padding: 10px 24px !important;
     font-size: 0.88rem !important; letter-spacing: 0.03em !important; transition: all 0.2s !important;
 }
-.stButton button:hover { opacity: 0.9 !important; transform: translateY(-1px) !important; }
+.stButton button:hover, .stFormSubmitButton button:hover { opacity: 0.9 !important; transform: translateY(-1px) !important; }
 
 [data-baseweb="tag"] { background-color: rgba(232,168,56,0.2) !important; border: 1px solid var(--accent-warm) !important; color: var(--accent-warm) !important; }
 
