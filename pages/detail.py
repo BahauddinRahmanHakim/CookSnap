@@ -19,14 +19,13 @@ from utils import fetch_cookpad_image, show_recipe_image
 
 
 def clean_chat_content(content: str) -> str:
+    """Strip semua tag HTML dari output LLM, kembalikan plain text."""
     text = html.unescape(content or '')
     text = re.sub(r'(?i)<br\s*/?>', '\n', text)
     text = re.sub(r'(?i)<p[^>]*>', '\n', text)
     text = re.sub(r'<[^>]+>', '', text)
     text = html.unescape(text)
-    text = text.strip()
-    text = html.escape(text, quote=False)
-    return text.replace('\n', '<br>')
+    return text.strip()
 
 
 
@@ -136,13 +135,13 @@ def render_chef_chat(recipe_row, grouped_ings, chef_agent, rid):
                         f"{badges_html}</div>"
                     )
 
-                safe_content = clean_chat_content(msg['content'])
+                # ── Bubble Chat ──
+                safe_content = clean_chat_content(msg['content']).replace('\n', '<br>')
                 st.markdown(f"""
                 <div style='display:flex; justify-content:flex-start; margin-bottom:12px;'>
                     <div style='max-width:80%;'>
-                        <div class='chat-name' style='color:var(--accent-warm);'>👨‍🍳 CHEF ARI</div>
-                        {tool_badges}
-                        <div class='chat-bubble-ai' style='white-space:pre-wrap; word-break:break-word;'>{safe_content}</div>
+                        <div class='chat-name' style='color:var(--accent-warm);'> 👨‍🍳 CHEF ARI {tool_badges}</div>                         
+                        <div class='chat-bubble-ai'>{safe_content}</div>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -357,7 +356,7 @@ def render(recipes_df, steps_df, grouped_ings, nutrition_df, chef_agent):
     render_chef_chat(recipe_row, grouped_ings, chef_agent, rid)
 
     button_label = "✕" if st.session_state.show_chef_chat else "👨‍🍳"
-    button_help = "Tutup Asisten Chef" if st.session_state.show_chef_chat else "Buka Asisten Chef"
+    button_help = "Tutup Asisten Chef" if st.session_state.show_chef_chat else "Klik untuk Membuka Asisten Chef di bawah Detail Resep"
 
     st.markdown("""
     <style>
